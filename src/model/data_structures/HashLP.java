@@ -102,7 +102,7 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 
 
 	@Override
-	public Iterator<K> keys() 
+	public Iterable<K> keys() 
 	{
 		LinkedQueue<K> queue = new LinkedQueue<K>();
 		for (int i = 0; i < m; i++)
@@ -112,7 +112,7 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 				queue.enqueue(keys[i]);
 			}
 		}
-		return queue.iterator();
+		return queue;
 	}
 
 	private int hash(K key) 

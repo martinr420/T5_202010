@@ -41,6 +41,10 @@ public class NodoHash<K extends Comparable<K>, V > implements Iterator<NodoHash<
 	{
 		return val;
 	}
+	public void setVal(V pVal)
+	{
+		val = pVal;
+	}
 
 	@Override
 	public boolean hasNext() 
