@@ -1,221 +1,159 @@
 package model.data_structures;
 
-import java.util.Iterator;
+public class HashSC<Key ,Value> {
 
-public class HashSC<K extends Comparable<K>, V> implements IHashTable<K, V>
-{
-	private int m; 
-	private int n; //numero clave valor
-	private NodoHash<K, V>[] st;
+	private static final int INIT_CAPACITY = 4;
 
-	public HashSC(int pM) {
-		n= 0;
-		m = pM;
-		st = (NodoHash<K, V>[]) new NodoHash[m];
-	} 
-
-	@Override
-	public void put(K key, V val)
-	{
-		NodoHash<K, V> insert = new NodoHash<K, V>(key, val);
-		int pos = hash(key);
-		if(st[pos] == null)
-		{
-			st[pos] = insert; 
-		}
-		else
-		{
-			NodoHash<K, V> actual = st[pos];
-			boolean elNodoYaExiste = false;
-			while(actual.darSiguiente() != null)
-			{
-				if(actual.getKey() == key)
-				{
-					actual.setVal(val);
-					elNodoYaExiste = true;
-					break;
-				}		
-				actual = actual.darSiguiente();
-			}
-			if(!elNodoYaExiste)
-			{
-				actual.cambiarSiguiente(insert);	
-			}
-		}
-		n++;
-		double total = (double)n / (double) m;
-		if(total >= 0.5)
-		{
-			try {
-				resize();
-			} catch (noExisteObjetoException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public V get(K key)  {
-
-		NodoHash<K, V> retornar = null;
-		int pos = hash(key);
-		retornar = st[pos];
-		while(retornar.getKey() != key && retornar != null)
-		{
-			retornar = retornar.darSiguiente();
-		}
-		if(retornar == null)
-		{
-			return null;
-		}
-		return retornar.getVal();
-	}
-
-	@Override
-	public V delete(K key)
-	{
-		V retornar = null;
-		int pos = hash(key);
-		if(st[pos] == key)
-		{
-			if(st[pos].darSiguiente() == null)
-			{
-				retornar = st[pos].getVal(); 
-				st[pos] = null;
-			}
-			else
-			{
-				retornar = st[pos].getVal(); 
-				st[pos] = st[pos].darSiguiente();
-			}
-			n--;
-		}
-		else
-		{
-			NodoHash<K, V> actual = st[pos];
-			while(actual.darSiguiente() != null)
-			{
-				if(actual.darSiguiente().getKey() == key)
-				{
-					retornar = actual.darSiguiente().getVal();
-					if(actual.darSiguiente().darSiguiente() != null)
-					{
-						actual.cambiarSiguiente(actual.darSiguiente().darSiguiente());
-						n--;	
-					}
-					else
-					{
-						actual.desconectarSiguiente();
-					}
-					
-					break;
-				}
-				actual = actual.darSiguiente();
-			}
-		}
-		
-		return retornar;
-	}
+	private int n;                                // number of key-value pairs
+	private int m;                                // hash table size
+	private SequentialSearchST<Key, Value>[] st;  // array of linked-list symbol tables
 
 
-
-	@Override
-	public Iterable<K> keys() {
-		LinkedQueue<NodoHash<K, V>> queue = new LinkedQueue<NodoHash<K, V>>();
-		for (int i = 0; i < m; i++) 
-		{
-			if(st[i] != null)
-			{
-				LinkedQueue<NodoHash<K, V>> miniQueue = st[i].keys();
-				for(int j = 0; j < miniQueue.size(); j++)
-				{
-					try {
-						queue.enqueue(miniQueue.dequeue());
-					} catch (noExisteObjetoException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}	
-			}
-
-
-		}
-		return (Iterable<K>) queue;
-	} 
-
-
-	private void resize() throws noExisteObjetoException
-	{
-		m*=2;
-		while(!esPrimo(m))
-		{
-			m++;
-		}
-
-		LinkedQueue<NodoHash<K,V>> queue = (LinkedQueue<NodoHash<K, V>>) this.keys();
-		st = (NodoHash<K, V>[]) new NodoHash[m];
-		for(int i = 0; i < queue.size(); i++)
-		{
-			NodoHash<K, V> insertar = queue.dequeue();
-			int pos = hash(insertar.getKey());
-			if(st[pos] == null)
-			{
-				st[pos] = insertar;
-			}
-			else
-			{
-				NodoHash<K, V> actual = st[pos];
-				while(actual != null)
-				{
-					if(actual.getKey() == insertar.getKey())
-					{
-						actual.setVal(insertar.getVal());
-						break;
-					}
-					else if(actual.darSiguiente() == null)
-					{
-						actual.cambiarSiguiente(insertar);
-					}
-				}
-			}
-		}
-
-
-
-	}
 	/**
-	 * crea una variable temporal llamada otroNum
-	 * que comienza en dos y va dividiendo el numero ingresado por parametro
-	 * si el cociente es entero entonces el numero es primo de lo contrario otroNum se 
-	 * suma 1 a si mismo y repite el proceso hasta llegar a la raiz del numero ingresado por parametro
-	 * @param num. el numeor para verificas si es primo
-	 * @return true si es primo false de lo contrario
+	 * Initializes an empty symbol table.
 	 */
+	public HashSC() {
+		this(INIT_CAPACITY);
+	} 
 
-	private boolean esPrimo(int num)
-	{
-		boolean esPrimo = true;
-		int otroNum = 2;
-		if(num % 2 == 0 || num < 2 && num >= 0) // verifica si el numero es par
-		{
-			esPrimo = false;
-		}
-		while(otroNum <= Math.sqrt(num) && num > 2 && esPrimo) 
-		{
-			if(num % otroNum == 0  )
-			{
-				esPrimo = false; 
-				break;
+	/**
+	 * Initializes an empty symbol table with {@code m} chains.
+	 * @param m the initial number of chains
+	 */
+	public HashSC(int m) {
+		this.m = m;
+		st = (SequentialSearchST<Key, Value>[]) new SequentialSearchST[m];
+		for (int i = 0; i < m; i++)
+			st[i] = new SequentialSearchST<Key, Value>();
+	} 
+
+	// resize the hash table to have the given number of chains,
+	// rehashing all of the keys
+	private void resize(int chains) {
+		HashSC<Key, Value> temp = new HashSC<Key, Value>(chains);
+		for (int i = 0; i < m; i++) {
+			for (Key key : st[i].keys()) {
+				temp.put(key, st[i].get(key));
 			}
-			otroNum++;
 		}
-		return esPrimo;
+		this.m  = temp.m;
+		this.n  = temp.n;
+		this.st = temp.st;
 	}
 
-	private int hash(K key)
-	{
-		return (key.hashCode() & 0x7fffffff) % m;	
+	// hash value between 0 and m-1
+	private int hash(Key key) {
+		return (key.hashCode() & 0x7fffffff) % m;
+	} 
+
+	/**
+	 * Returns the number of key-value pairs in this symbol table.
+	 *
+	 * @return the number of key-value pairs in this symbol table
+	 */
+	public int size() {
+		return n;
+	} 
+
+	/**
+	 * Returns true if this symbol table is empty.
+	 *
+	 * @return {@code true} if this symbol table is empty;
+	 *         {@code false} otherwise
+	 */
+	public boolean isEmpty() {
+		return size() == 0;
 	}
+
+	/**
+	 * Returns true if this symbol table contains the specified key.
+	 *
+	 * @param  key the key
+	 * @return {@code true} if this symbol table contains {@code key};
+	 *         {@code false} otherwise
+	 * @throws IllegalArgumentException if {@code key} is {@code null}
+	 */
+	public boolean contains(Key key) {
+		if (key == null) throw new IllegalArgumentException("argument to contains() is null");
+		return get(key) != null;
+	} 
+
+	/**
+	 * Returns the value associated with the specified key in this symbol table.
+	 *
+	 * @param  key the key
+	 * @return the value associated with {@code key} in the symbol table;
+	 *         {@code null} if no such value
+	 * @throws IllegalArgumentException if {@code key} is {@code null}
+	 */
+	public Value get(Key key) {
+		if (key == null) throw new IllegalArgumentException("argument to get() is null");
+		int i = hash(key);
+		return st[i].get(key);
+	} 
+
+	/**
+	 * Inserts the specified key-value pair into the symbol table, overwriting the old 
+	 * value with the new value if the symbol table already contains the specified key.
+	 * Deletes the specified key (and its associated value) from this symbol table
+	 * if the specified value is {@code null}.
+	 *
+	 * @param  key the key
+	 * @param  val the value
+	 * @throws IllegalArgumentException if {@code key} is {@code null}
+	 */
+	public void put(Key key, Value val) {
+		if (key == null) throw new IllegalArgumentException("first argument to put() is null");
+		if (val == null) {
+			delete(key);
+			return;
+		}
+
+		// double table size if average length of list >= 10
+		if (n >= 10*m) resize(2*m);
+
+		int i = hash(key);
+		if (!st[i].contains(key)) n++;
+		st[i].put(key, val);
+	} 
+
+	/**
+	 * Removes the specified key and its associated value from this symbol table     
+	 * (if the key is in this symbol table).    
+	 *
+	 * @param  key the key
+	 * @throws IllegalArgumentException if {@code key} is {@code null}
+	 */
+	public Void delete(Key key)
+	{
+		
+		if (key == null)
+		{
+			throw new IllegalArgumentException("argument to delete() is null");
+		}
+
+		int i = hash(key);
+		if (st[i].contains(key)) n--;
+		st[i].delete(key);
+
+		// halve table size if average length of list <= 2
+		if (m > INIT_CAPACITY && n <= 2*m) resize(m/2);
+		return null;
+		
+	} 
+
+	// return keys in symbol table as an Iterable
+	public Iterable<Key> keys() {
+		LinkedQueue<Key> queue = new LinkedQueue<Key>();
+		for (int i = 0; i < m; i++) {
+			for (Key key : st[i].keys())
+				queue.enqueue(key);
+		}
+		return queue;
+	} 
+
 
 }
+
+
+

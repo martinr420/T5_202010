@@ -48,12 +48,9 @@ public class TestHashLP extends TestCase
 	public void testDelete()
 	{
 		setUp1();
-		try {
+		
 			assertTrue(hash.delete(1) == 'a');
-		} catch (noExisteObjetoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 	
 	@Test
