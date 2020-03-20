@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public class Nodo<K extends Comparable<K>> implements Iterator<Nodo<K>>
+public class Nodo<K> implements Iterator<Nodo<K>>
 {
 
 	private K key;

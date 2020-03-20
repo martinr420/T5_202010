@@ -57,6 +57,21 @@ public class NodoHash<K extends Comparable<K>, V > implements Iterator<NodoHash<
 	public NodoHash<K,V> next() 
 	{
 		return siguiente;
+	}
+
+
+	public LinkedQueue<NodoHash<K,V>> keys() 
+	{
+		LinkedQueue<NodoHash<K, V>> q = new LinkedQueue<NodoHash<K,V>>();
+		
+		NodoHash<K,V>actual = this;// TODO Auto-generated method stub
+		
+		while(actual != null)
+		{
+			q.enqueue(actual);
+			actual = actual.darSiguiente();
+		}
+		return q;
 	}	
 
 }

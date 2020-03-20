@@ -4,18 +4,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.TestCase;
-import model.data_structures.HashLP;
+import model.data_structures.HashSC;
 import model.data_structures.LinkedQueue;
 import model.data_structures.noExisteObjetoException;
 
-public class TestHashLP extends TestCase
+public class TestHashSC extends TestCase
 {
-	private HashLP<Integer, Character> hash;
+	HashSC<Integer, Character> hash;
 	
 	@Before
 	public void setUp1()
 	{
-		hash = new HashLP<Integer, Character>(5);
+		hash = new HashSC<Integer, Character>(100);
 		
 		hash.put(1, 'a');
 		hash.put(4, 'b');
@@ -48,12 +48,7 @@ public class TestHashLP extends TestCase
 	public void testDelete()
 	{
 		setUp1();
-		try {
-			assertTrue(hash.delete(1) == 'a');
-		} catch (noExisteObjetoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		assertTrue(hash.delete(1) == 'a');
 	}
 	
 	@Test

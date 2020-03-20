@@ -2,7 +2,7 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public class LinkedQueue <K extends Comparable<K>> implements ILinkedQueue<K>, Iterable <K> 
+public class LinkedQueue <K> implements ILinkedQueue<K>, Iterable <K> 
 
 {
 	private Nodo<K> primero;

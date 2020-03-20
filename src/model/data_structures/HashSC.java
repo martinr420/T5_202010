@@ -46,12 +46,17 @@ public class HashSC<K extends Comparable<K>, V> implements IHashTable<K, V>
 		double total = (double)n / (double) m;
 		if(total >= 0.5)
 		{
-			resize();
+			try {
+				resize();
+			} catch (noExisteObjetoException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	@Override
-	public V get(K key) throws noExisteObjetoException {
+	public V get(K key)  {
 
 		NodoHash<K, V> retornar = null;
 		int pos = hash(key);
@@ -62,63 +67,85 @@ public class HashSC<K extends Comparable<K>, V> implements IHashTable<K, V>
 		}
 		if(retornar == null)
 		{
-			throw new noExisteObjetoException();
+			return null;
 		}
 		return retornar.getVal();
 	}
 
 	@Override
-	public V delete(K key) throws noExisteObjetoException 
+	public V delete(K key)
 	{
-		NodoHash<K, V> eliminar = null;
+		V retornar = null;
 		int pos = hash(key);
-		NodoHash<K, V> actual = st[pos];
-		if(actual.getKey() == key )
+		if(st[pos] == key)
 		{
-			if(actual.darSiguiente() != null)
+			if(st[pos].darSiguiente() == null)
 			{
-				st[pos] = actual.darSiguiente();
+				retornar = st[pos].getVal(); 
+				st[pos] = null;
 			}
 			else
 			{
-				st[pos] = null;
+				retornar = st[pos].getVal(); 
+				st[pos] = st[pos].darSiguiente();
 			}
+			n--;
 		}
 		else
 		{
-			while(actual.darSiguiente().getKey() != key && actual != null)
-
+			NodoHash<K, V> actual = st[pos];
+			while(actual.darSiguiente() != null)
 			{
+				if(actual.darSiguiente().getKey() == key)
+				{
+					retornar = actual.darSiguiente().getVal();
+					if(actual.darSiguiente().darSiguiente() != null)
+					{
+						actual.cambiarSiguiente(actual.darSiguiente().darSiguiente());
+						n--;	
+					}
+					else
+					{
+						actual.desconectarSiguiente();
+					}
+					
+					break;
+				}
 				actual = actual.darSiguiente();
 			}
-			eliminar = actual.darSiguiente();
-			actual.cambiarSiguiente(eliminar.darSiguiente());
 		}
-		n--;
-		return eliminar.getVal();
+		
+		return retornar;
 	}
 
 
 
 	@Override
 	public Iterable<K> keys() {
-		
-		LinkedQueue<K> queue = new LinkedQueue<>();
-		for (int i = 0; i < st.length; i++) 
+		LinkedQueue<NodoHash<K, V>> queue = new LinkedQueue<NodoHash<K, V>>();
+		for (int i = 0; i < m; i++) 
 		{
-			NodoHash<K, V> actual = st[i]; 
-			while(actual != null)
+			if(st[i] != null)
 			{
-				queue.enqueue(actual.getKey());
-				actual = actual.darSiguiente();
+				LinkedQueue<NodoHash<K, V>> miniQueue = st[i].keys();
+				for(int j = 0; j < miniQueue.size(); j++)
+				{
+					try {
+						queue.enqueue(miniQueue.dequeue());
+					} catch (noExisteObjetoException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}	
 			}
-			
-		}
-		
-		return queue;
-	}
 
-	private void resize()
+
+		}
+		return (Iterable<K>) queue;
+	} 
+
+
+	private void resize() throws noExisteObjetoException
 	{
 		m*=2;
 		while(!esPrimo(m))
@@ -126,13 +153,36 @@ public class HashSC<K extends Comparable<K>, V> implements IHashTable<K, V>
 			m++;
 		}
 
-		NodoHash<K, V>[] temporal =(NodoHash<K,V>[]) new NodoHash[m];
-
-		for(int i = 0; i < m; i++)
+		LinkedQueue<NodoHash<K,V>> queue = (LinkedQueue<NodoHash<K, V>>) this.keys();
+		st = (NodoHash<K, V>[]) new NodoHash[m];
+		for(int i = 0; i < queue.size(); i++)
 		{
-			temporal[i] = st[i];
+			NodoHash<K, V> insertar = queue.dequeue();
+			int pos = hash(insertar.getKey());
+			if(st[pos] == null)
+			{
+				st[pos] = insertar;
+			}
+			else
+			{
+				NodoHash<K, V> actual = st[pos];
+				while(actual != null)
+				{
+					if(actual.getKey() == insertar.getKey())
+					{
+						actual.setVal(insertar.getVal());
+						break;
+					}
+					else if(actual.darSiguiente() == null)
+					{
+						actual.cambiarSiguiente(insertar);
+					}
+				}
+			}
 		}
-		st = temporal;
+
+
+
 	}
 	/**
 	 * crea una variable temporal llamada otroNum

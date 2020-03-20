@@ -29,17 +29,17 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 		}
 		if(keys[posicion] != null)
 		{
-			boolean encontro = false;
-			while(!encontro)
+			while(true)
 			{
 				if(keys[++posicion] == null)
 				{
-					encontro = true;
+					break;
 				}
 			}
 		}
 		keys[posicion] = key;
 		vals[posicion] = val;
+		n++;
 
 
 
@@ -69,12 +69,9 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 	}
 
 	@Override
-	public V delete(K key) throws noExisteObjetoException
+	public V delete(K key) 
 	{
-		if (key == null || !contains(key))
-		{
-			throw new noExisteObjetoException();
-		}
+		
 		int i = hash(key);
 		while (!key.equals(keys[i]))
 		{
@@ -122,29 +119,50 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 
 	private void resize()
 	{
-		m*=2;
+		m*=2; //tamano del nuevo arreglo
+		
 		while(!esPrimo(m))
 		{
-			m++;
+			m++; //hasta que sea primo se va a sumar m
 		}
+		K[] tempKeys = keys; // pasa el arreglo original a un arreglo temporal
+		V[] tempVals = vals; // pasa el arreglo original a un arreglo temporal
+		
+		keys = (K[]) new Comparable[m]; // crea un nuevo arreglo con el nuevo tamaño
+		vals = (V[]) new Object[m]; 
 
-		K[] nuevoKeys = (K[]) new Comparable[m]; 
-		V[] nuevoVals = (V[]) new Object[m];
-
-		for(int i = 0; i < m; i++)
+		for(int i = 0; i < tempKeys.length; i++) //va a organizar los nuevos objetos
 		{
-			nuevoKeys[i] = keys[i];
-			nuevoVals[i] = vals[i];
+			if(tempKeys[i] != null)
+			{
+				K kInsert = tempKeys[i];
+				V vInsert = tempVals[i];
+				int posicion = hash(kInsert);
+				if(keys[posicion] != null)
+				{
+					while(true)
+					{
+						if(keys[++posicion] == null)
+						{
+							break;
+						}
+					}
+				}
+				keys[posicion] = kInsert;
+				vals[posicion] = vInsert;
+		    }
 		}
-		keys = nuevoKeys;
-		vals = nuevoVals;
 	}
 
 	private boolean esPrimo(int num)
 	{
 		boolean esPrimo = true;
 		int otroNum = 2;
-		while(otroNum <= Math.sqrt(num) && num != 2)
+		if(num % 2 == 0 || num < 2 && num >= 0) // verifica si el numero es par
+		{
+			esPrimo = false;
+		}
+		while(otroNum <= Math.sqrt(num) && num > 2 && esPrimo) 
 		{
 			if(num % otroNum == 0  )
 			{
@@ -155,7 +173,7 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 		}
 		return esPrimo;
 	}
-	public boolean contains(K key) {
+	private boolean contains(K key) {
 		if (key == null) throw new IllegalArgumentException("argument to contains() is null");
 		return get(key) != null;
 	}
