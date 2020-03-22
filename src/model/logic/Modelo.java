@@ -3,11 +3,16 @@ package model.logic;
 
 
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,9 +22,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
-import model.data_structures.IMaxColaCP;
-import model.data_structures.MaxColaCP;
-import model.data_structures.MaxHeapCP;
+import model.data_structures.HashLP;
+import model.data_structures.HashSC;
 import model.data_structures.Nodo;
 import model.data_structures.noExisteObjetoException;
 
@@ -31,77 +35,39 @@ public class Modelo {
 	/**
 	 * Atributos del modelo del mundo
 	 */
-	private MaxHeapCP<Multa> datosHeap;
-	private MaxColaCP<Multa> datosCola;
+	private HashSC<Llave, Multa> datosSC;
+	private HashLP<Llave, Multa> datosLP;
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
 	 */
 	public Modelo()
 	{
-		datosCola = new MaxColaCP<Multa>();
-		datosHeap = new MaxHeapCP<Multa>();
+		datosSC = new HashSC<Llave, Multa>(10);
+		datosLP = new HashLP<Llave, Multa>(10);
 	}
 
 
 
-	public MaxHeapCP<Multa> darDatosHeap()
+	public HashSC<Llave, Multa> darDatosHeap()
 	{
-		return datosHeap;
+		return datosSC;
 	}
 
-	public MaxColaCP<Multa> darDatosCola()
+	public HashLP<Llave, Multa> darDatosCola()
 	{
-		return datosCola;
+		return datosLP;
 	}
 
-	/**
-	 * Servicio de consulta de numero de elementos presentes en el modelo 
-	 * @return numero de elementos presentes en el modelo
-	 */
-	public int sizeHeap()
+	public void cargarDatos() throws noExisteObjetoException, ParseException 
 	{
-		return datosHeap.size();
-	}
-
-	public int sizeCola()
-	{
-		return datosCola.size();
-	}
-
-	/**
-	 * Requerimiento de agregar dato
-	 * @param dato
-	 */
-	public void agregarAHeap(Nodo<Multa> dato)
-	{	
-		datosHeap.insert(dato.generic());
-	}
-
-	public void agregarACola(Nodo<Multa> dato)
-	{
-		datosCola.insert(dato.generic());
-	}
-
-	/**
-	 * Requerimiento buscar dato
-	 * @param dato Dato a buscar
-	 * @return dato encontrado
-	 * @throws noExisteObjetoException 
-	 */
-	public List<Multa> cargarDatos() throws noExisteObjetoException 
-	{
-		List<Multa> muestra = new ArrayList<Multa>();
-
-		String path = "./data/comparendos_dei_2018_small.geojson";
+		String path = "./data/comparendos.txt";
 		JsonReader lector;
 
 
 		try {
-
 			lector = new JsonReader(new FileReader(path));
 			JsonElement elem = JsonParser.parseReader(lector);
 			JsonObject ja = elem.getAsJsonObject();
-
 			JsonArray features = ja.getAsJsonArray("features");
 
 
@@ -110,7 +76,9 @@ public class Modelo {
 				JsonObject propiedades = (JsonObject) e.getAsJsonObject().get("properties");
 
 				long id = propiedades.get("OBJECTID").getAsLong();
-				String fecha = propiedades.get("FECHA_HORA").getAsString();
+				String cadenaFecha = propiedades.get("FECHA_HORA").getAsString();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+				Date fecha = sdf.parse(cadenaFecha);
 				String medioDete = propiedades.getAsJsonObject().get("MEDIO_DETE").getAsString();
 				String claseVehiculo = propiedades.getAsJsonObject().get("CLASE_VEHI").getAsString();
 				String tipoServicio = propiedades.getAsJsonObject().get("TIPO_SERVI").getAsString();
@@ -134,142 +102,101 @@ public class Modelo {
 
 				Multa multa = new Multa(id, fecha, medioDete, claseVehiculo, tipoServicio, infraccion, descripcion, localidad, geometria);
 
-				muestra.add(multa);
-			
+				Llave llave = new Llave(fecha, claseVehiculo, infraccion);
+				
+				datosSC.put(llave, multa);
+				datosLP.put(llave, multa);
 			} //llave for grande
-
 		}//llave try
 		catch (IOException e) 
 		{
 			e.printStackTrace();
 		}
-		Collections.shuffle(muestra);
-		return muestra;
-
-
 	} //llave metodo
-	
-	public long cargarDatosALaCola(int tamanoMuestra)
+
+	public String reque1()
 	{
-		long inicio = 0, fin = -1;
-		ArrayList<Multa> muestra;
+		String msj = "";
 		try {
-			muestra = (ArrayList<Multa>) cargarDatos();
-			inicio = System.currentTimeMillis();
-			for(int i = 0; i < tamanoMuestra; i++)
-			{
-				datosCola.insert(muestra.get(i));
-			}
-			fin = System.currentTimeMillis();
+			cargarDatos();
 		} catch (noExisteObjetoException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		return fin - inicio;
-	}
-	
-	public long  cargarDatosAlHeap(int tamanoMuestra)
-	{
-		long inicio = 0, fin = -1;
-		ArrayList<Multa> muestra;
-		try {
-			muestra = (ArrayList<Multa>) cargarDatos();
-			inicio = System.currentTimeMillis();
-			for(int i = 0; i < tamanoMuestra; i++)
-			{
-				datosHeap.insert(muestra.get(i));
-			}
-			fin = System.currentTimeMillis();
-		} catch (noExisteObjetoException e) {
+		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		msj += "primero: " + datosSC.primero() + " " + datosLP.primero() + "<br>";
+		msj += "ultimo: " + datosSC.ultimo() + " " + datosLP.ultimo() + "<br>";
+		msj += "duplas: " + datosSC.size();
+		msj += "tamaño inicial: " + datosSC.tamanoInicial() + " " + datosLP.tamanoInicial() + "<br>";
+		msj += "tamaño final: " + datosSC.tamanoFinal() + " " + datosLP.tamanoFinal() + "<br>";
+		msj += "factor carga: " + datosSC.factorCarga() + " "+ datosLP.factorCarga() + "<br>";
+		msj += "rehashes";
 		
-		return fin - inicio;
+		return msj;
 	}
-
-
-	public String retornarreq1(int tamanoMuestra) throws noExisteObjetoException
+	private Multa[] primYUlt() throws FileNotFoundException, ParseException
 	{
+		Multa[] retornar = new Multa[2];
 		
-		
-		return "El total de comparendos son: " + datosCola.size() + ". el tiempo en cargar la cola es: " + cargarDatosALaCola(tamanoMuestra) + 
-				". El tiempo en cargar los datos al heap es de: " +  cargarDatosAlHeap(tamanoMuestra) + ". ";
-	}
+		String path = "./data/comparendos.txt";
+		JsonReader lector;
 
-	public void comparendosMasAlNorteCola ( int n, String pLista)
-	{
-		
-		String[] separadas;
-		separadas = pLista.split(",");
-		
+
 		try {
-			ArrayList<Multa> lasMultas = new ArrayList<Multa>(n);
-			for (int i = 0; lasMultas.size() < n; i++)
-			{
-			Multa laMulta = datosCola.deleteMax();
-			
-			for (String uno: separadas)
-			{
-			if (laMulta.getVehiculo().equals(uno))
-					{
+			lector = new JsonReader(new FileReader(path));
+			JsonElement elem = JsonParser.parseReader(lector);
+			JsonObject ja = elem.getAsJsonObject();
+			JsonArray features = ja.getAsJsonArray("features");
+			int cont = 0; 
+
+
+			for(int i = 0; i < features.size(); i += features.size()-1)
+			{	
+				JsonElement e = features.get(i);
+				JsonObject propiedades = (JsonObject) e.getAsJsonObject().get("properties");
+
+				long id = propiedades.get("OBJECTID").getAsLong();
+				String cadenaFecha = propiedades.get("FECHA_HORA").getAsString();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+				Date fecha = sdf.parse(cadenaFecha);
+				String medioDete = propiedades.getAsJsonObject().get("MEDIO_DETE").getAsString();
+				String claseVehiculo = propiedades.getAsJsonObject().get("CLASE_VEHI").getAsString();
+				String tipoServicio = propiedades.getAsJsonObject().get("TIPO_SERVI").getAsString();
+				String infraccion = propiedades.getAsJsonObject().get("INFRACCION").getAsString();
+				String descripcion = propiedades.getAsJsonObject().get("DES_INFRAC").getAsString();
+				String localidad = propiedades.getAsJsonObject().get("LOCALIDAD").getAsString();
+
+
+				JsonObject geometry = (JsonObject) e.getAsJsonObject().get("geometry");
+
+				String tipo = geometry.get("type").getAsString();
+
+				double[] listaCoords = new double[3];
+				JsonArray coordsJson = geometry.getAsJsonArray("coordinates");
+				for(int j = 0; j < coordsJson.size(); j ++)
+				{
+					listaCoords[i] = coordsJson.get(i).getAsDouble();
+				}
+
+				Geo geometria = new Geo(tipo, listaCoords);
+
+				Multa multa = new Multa(id, fecha, medioDete, claseVehiculo, tipoServicio, infraccion, descripcion, localidad, geometria);
+
+				retornar[cont] = multa;
+				++cont;
 				
-					lasMultas.add(laMulta);
-		
 				
-					}}}
-			
-			System.out.println("Infraccion  | " + "Clase de Vehiculo" + "  | " + "latitud" + "  | " +  "longitud" );
-			for (Multa multa: lasMultas)
-			{
-			System.out.println(multa.getId() + "  | " +  multa.getVehiculo() + "  | " + multa.getGeo().darCoordenadas()[0] + "  | " + multa.getGeo().darCoordenadas()[1] );
-			}
-			System.out.println("El tiempo en tardo en ejecutarse es " + System.currentTimeMillis());
-		} 
-		
-		catch (noExisteObjetoException e) {
-			// TODO Auto-generated catch block
+			} //llave for grande
+		}//llave try
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 		
+		
+		return retornar;
 	}
-	
-	public void comparendosMasAlNorteHeap ( int n, String pLista)
-	{
-		
-		String[] separadas;
-		separadas = pLista.split(",");
-		
-		try {
-			ArrayList<Multa> lasMultas = new ArrayList<Multa>(n);
-			for (int i = 0; lasMultas.size() < n; i++)
-			{
-			Multa laMulta = datosHeap.deleteMax();
-			
-			for (String uno: separadas)
-			{
-			if (laMulta.getVehiculo().equals(uno))
-					{
-				
-					lasMultas.add(laMulta);
-		
-				
-					}}}
-			System.out.println("El tiempo en tardo en ejecutarse es ");
-			System.out.println("Infraccion  | " + "Clase de Vehiculo" + "  | " + "latitud" + "  | " +  "longitud" );
-			for (Multa multa: lasMultas)
-			{
-			System.out.println(multa.getId() + "  | " +  multa.getVehiculo() + "  | " + multa.getGeo().darCoordenadas()[0] + "  | " + multa.getGeo().darCoordenadas()[1] );
-			}
-			
-			System.out.println("El tiempo en tardo en ejecutarse es " + System.currentTimeMillis());
-		} 
-		
-		catch (noExisteObjetoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
+
 }//llave clase

@@ -2,14 +2,18 @@ package model.data_structures;
 
 import java.util.Iterator;
 
-public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
+public class HashLP<K, V> implements IHashTable<K, V>
 {
 
 	private int n; // numero de elementos en el arreglo
 	private int m; //tamaño inicial del arreglo
 	private K[] keys;
 	private V[] vals;
-
+	private V primero;
+	private V ultimo;
+	private int tamanoInicial;
+	private int tamanoFinal;
+	int cantidadResize;
 
 	public HashLP(int pM) 
 	{
@@ -17,6 +21,10 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 		keys = (K[]) new Comparable[pM];
 		vals = (V[]) new Object[pM];
 		n = 0;
+		primero = null;
+		ultimo = null;
+		tamanoInicial = m;
+		tamanoFinal = m; 
 	}
 	@Override
 	public void put(K key, V val) 
@@ -39,10 +47,16 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 		}
 		keys[posicion] = key;
 		vals[posicion] = val;
+		if(n == 0)
+		{
+			primero = val;
+			ultimo = val;
+		}
+		else
+		{
+			ultimo = val;
+		}
 		n++;
-
-
-
 	}
 
 	@Override
@@ -71,7 +85,7 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 	@Override
 	public V delete(K key) 
 	{
-		
+
 		int i = hash(key);
 		while (!key.equals(keys[i]))
 		{
@@ -120,14 +134,14 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 	private void resize()
 	{
 		m*=2; //tamano del nuevo arreglo
-		
+
 		while(!esPrimo(m))
 		{
 			m++; //hasta que sea primo se va a sumar m
 		}
 		K[] tempKeys = keys; // pasa el arreglo original a un arreglo temporal
 		V[] tempVals = vals; // pasa el arreglo original a un arreglo temporal
-		
+
 		keys = (K[]) new Comparable[m]; // crea un nuevo arreglo con el nuevo tamaño
 		vals = (V[]) new Object[m]; 
 
@@ -150,8 +164,10 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 				}
 				keys[posicion] = kInsert;
 				vals[posicion] = vInsert;
-		    }
+			}
 		}
+		cantidadResize++;
+		tamanoFinal = m;
 	}
 
 	private boolean esPrimo(int num)
@@ -178,5 +194,34 @@ public class HashLP<K extends Comparable<K>, V> implements IHashTable<K, V>
 		return get(key) != null;
 	}
 
+	public int size()
+	{
+		return n;
+	}
+	public int cantidadResize()
+	{
+		return cantidadResize;
+	}
+	
+	public double factorCarga()
+	{
+		return (double)n / (double) m;
+	}
+	public V primero()
+	{
+		return primero;
+	}
+	public V  ultimo()
+	{
+		return ultimo;
+	}
+	public int tamanoFinal()
+	{
+		return tamanoFinal;
+	}
+	public int tamanoInicial()
+	{
+		return tamanoInicial;
+	}
 
 }
