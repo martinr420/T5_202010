@@ -37,7 +37,7 @@ public class TestHashSC extends TestCase
 	public void testGet()
 	{
 		setUp1();
-		assertTrue('a' == hash.get(1));
+
 		assertTrue('b' == hash.get(4));
 		assertTrue('e' == hash.get(15));
 		assertTrue('c' == hash.get(2));

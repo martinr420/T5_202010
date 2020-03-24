@@ -34,7 +34,6 @@ public class Controller {
 	 * Creates the project view and the project model
 	 */
 	public Controller() {
-		modelo = new Modelo();
 		view = new View();
 	}
 
@@ -52,7 +51,6 @@ public class Controller {
 		try {
 			Scanner reader = new Scanner(System.in);
 			boolean end = false;
-
 			while (!end) {
 				view.displayMenu();
 				int option = reader.nextInt();
@@ -61,7 +59,8 @@ public class Controller {
 				case 0:
 					System.out.println("digite el tamano");
 					int tamanoMuestra = reader.nextInt();
-					view.displayOp0Menu(modelo.retornarreq1(tamanoMuestra));
+					modelo = new Modelo(tamanoMuestra);
+					view.displayOp0Menu(modelo.reque1());
 					break;
 
 				case 1:
@@ -70,7 +69,6 @@ public class Controller {
 					int n = reader.nextInt();
 					view.displayOp18Menu();
 					String vehiculo = reader.next();
-					modelo.comparendosMasAlNorteCola(n, vehiculo);
 					
 					
 					
@@ -82,8 +80,7 @@ public class Controller {
 					int n2 = reader.nextInt();
 					view.displayOp18Menu();
 					String vehiculo2 = reader.next();
-					modelo.comparendosMasAlNorteHeap(n2, vehiculo2);
-				
+					
 					break;
 			
 					// Invalid option

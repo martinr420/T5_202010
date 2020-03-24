@@ -66,7 +66,8 @@ public class SequentialSearchST<Key, Value> {
 	 *     and {@code null} if the key is not in the symbol table
 	 * @throws IllegalArgumentException if {@code key} is {@code null}
 	 */
-	public Value get(Key key) {
+	public Value get(Key key)
+	{
 		if (key == null) throw new IllegalArgumentException("argument to get() is null"); 
 		for (Node x = first; x != null; x = x.next) {
 			if (key.equals(x.key))
