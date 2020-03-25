@@ -39,14 +39,19 @@ public class HashSC<Key ,Value> {
 	// rehashing all of the keys
 	private void resize() 
 	{
+<<<<<<< HEAD
 		m *=2;
+=======
+		int temp1 = m;
+		m*=2;
+>>>>>>> 6cdede3868dbd48c36232a6c9934c01b8eccb726
 		while(!esPrimo(m))
 		{
 			m++;
 		}
 		int chains = m;
 		HashSC<Key, Value> temp = new HashSC<Key, Value>(chains);
-		for (int i = 0; i < m; i++) {
+		for (int i = 0; i < temp1; i++) {
 			for (Key key : st[i].keys()) {
 				temp.put(key, st[i].get(key));
 			}
@@ -105,6 +110,7 @@ public class HashSC<Key ,Value> {
 	 */
 	public Value get(Key key) {
 		if (key == null) throw new IllegalArgumentException("argument to get() is null");
+		
 		int i = hash(key);
 		return st[i].get(key);
 	} 

@@ -40,10 +40,15 @@ public class Modelo {
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
 	 */
-	public Modelo()
+	public Modelo(int capacidad)
 	{
+<<<<<<< HEAD
 		datosSC = new HashSC<Llave, ArrayList<Multa>>(10);
 		datosLP = new HashLP<Llave, ArrayList<Multa>>(10);
+=======
+		datosSC = new HashSC<Llave, Multa>(capacidad);
+		datosLP = new HashLP<Llave, Multa>(capacidad);
+>>>>>>> 6cdede3868dbd48c36232a6c9934c01b8eccb726
 	}
 
 
@@ -77,13 +82,13 @@ public class Modelo {
 
 				long id = propiedades.get("OBJECTID").getAsLong();
 				String cadenaFecha = propiedades.get("FECHA_HORA").getAsString();
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-				Date fecha = sdf.parse(cadenaFecha);
-				String medioDete = propiedades.getAsJsonObject().get("MEDIO_DETE").getAsString();
-				String claseVehiculo = propiedades.getAsJsonObject().get("CLASE_VEHI").getAsString();
-				String tipoServicio = propiedades.getAsJsonObject().get("TIPO_SERVI").getAsString();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				Date fecha = sdf.parse(cadenaFecha.substring(0, 9));
+				String medioDete = propiedades.getAsJsonObject().get("MEDIO_DETECCION").getAsString();
+				String claseVehiculo = propiedades.getAsJsonObject().get("CLASE_VEHICULO").getAsString();
+				String tipoServicio = propiedades.getAsJsonObject().get("TIPO_SERVICIO").getAsString();
 				String infraccion = propiedades.getAsJsonObject().get("INFRACCION").getAsString();
-				String descripcion = propiedades.getAsJsonObject().get("DES_INFRAC").getAsString();
+				String descripcion = propiedades.getAsJsonObject().get("DES_INFRACCION").getAsString();
 				String localidad = propiedades.getAsJsonObject().get("LOCALIDAD").getAsString();
 
 
