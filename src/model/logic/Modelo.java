@@ -35,32 +35,32 @@ public class Modelo {
 	/**
 	 * Atributos del modelo del mundo
 	 */
-	private HashSC<Llave, Multa> datosSC;
-	private HashLP<Llave, Multa> datosLP;
+	private HashSC<Llave,ArrayList<Multa>> datosSC;
+	private HashLP<Llave, ArrayList<Multa>> datosLP;
 	/**
 	 * Constructor del modelo del mundo con capacidad predefinida
 	 */
 	public Modelo()
 	{
-		datosSC = new HashSC<Llave, Multa>(10);
-		datosLP = new HashLP<Llave, Multa>(10);
+		datosSC = new HashSC<Llave, ArrayList<Multa>>(10);
+		datosLP = new HashLP<Llave, ArrayList<Multa>>(10);
 	}
 
 
 
-	public HashSC<Llave, Multa> darDatosHeap()
+	public HashSC<Llave, ArrayList<Multa>> darDatosHeap()
 	{
 		return datosSC;
 	}
 
-	public HashLP<Llave, Multa> darDatosCola()
+	public HashLP<Llave, ArrayList<Multa>> darDatosCola()
 	{
 		return datosLP;
 	}
 
 	public void cargarDatos() throws noExisteObjetoException, ParseException 
 	{
-		String path = "./data/comparendos.txt";
+		String path = "./data/comparendos_dei_2018_small (1).geojson";
 		JsonReader lector;
 
 
@@ -104,8 +104,14 @@ public class Modelo {
 
 				Llave llave = new Llave(fecha, claseVehiculo, infraccion);
 				
-				datosSC.put(llave, multa);
-				datosLP.put(llave, multa);
+				
+				
+				datosSC.put(llave, new ArrayList<>() );
+				datosSC.get(llave).add(multa);
+				datosLP.put(llave, new ArrayList<>() );
+				datosLP.get(llave).add(multa);
+				
+				
 			} //llave for grande
 		}//llave try
 		catch (IOException e) 
@@ -129,8 +135,8 @@ public class Modelo {
 		msj += "primero: " + datosSC.primero() + " " + datosLP.primero() + "<br>";
 		msj += "ultimo: " + datosSC.ultimo() + " " + datosLP.ultimo() + "<br>";
 		msj += "duplas: " + datosSC.size();
-		msj += "tamaño inicial: " + datosSC.tamanoInicial() + " " + datosLP.tamanoInicial() + "<br>";
-		msj += "tamaño final: " + datosSC.tamanoFinal() + " " + datosLP.tamanoFinal() + "<br>";
+		msj += "tamaï¿½o inicial: " + datosSC.tamanoInicial() + " " + datosLP.tamanoInicial() + "<br>";
+		msj += "tamaï¿½o final: " + datosSC.tamanoFinal() + " " + datosLP.tamanoFinal() + "<br>";
 		msj += "factor carga: " + datosSC.factorCarga() + " "+ datosLP.factorCarga() + "<br>";
 		msj += "rehashes";
 		
@@ -197,6 +203,58 @@ public class Modelo {
 		
 		
 		return retornar;
+	}
+	
+	public void BuscarComparendosLP(String fecha, String clasVeh, String infraccion)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+		Date date;
+		try {
+			date = sdf.parse(fecha);
+			Llave llave = new Llave(date, clasVeh, infraccion);
+			
+			ArrayList<Multa> datos = datosLP.get(llave);
+			Collections.sort(datos);
+			
+			System.out.println("Objectid | Fecha | Tipo de vehiculo | Infraccion ");
+			for (Multa multa: datos)
+			{
+				System.out.println(multa.getId() + "|" + multa.getFecha() + "|" + multa.getVehiculo() + "|" + multa.getInfraccion());
+			}
+			
+			
+			
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void BuscarComparendosSC(String fecha, String clasVeh, String infraccion)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+		Date date;
+		try {
+			date = sdf.parse(fecha);
+			Llave llave = new Llave(date, clasVeh, infraccion);
+			
+			ArrayList<Multa> datos = datosSC.get(llave);
+			Collections.sort(datos);
+			
+			System.out.println("Objectid | Fecha | Tipo de vehiculo | Infraccion ");
+			for (Multa multa: datos)
+			{
+				System.out.println(multa.getId() + "|" + multa.getFecha() + "|" + multa.getVehiculo() + "|" + multa.getInfraccion());
+			}
+			
+			
+			
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }//llave clase

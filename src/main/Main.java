@@ -9,8 +9,8 @@ public class Main {
 	
 	public static void main(String[] args) throws  noExisteObjetoException 
 	{
-//		Controller controler = new Controller();
-//		controler.run();
+	Controller controler = new Controller();
+	controler.run();
 		System.out.println();
 	}
 }

@@ -12,6 +12,7 @@ public class HashSC<Key ,Value> {
 	private Value ultimo;
 	private int tamanoInicial;
 	private int tamanoFinal;
+	
 
 	/**
 	 * Initializes an empty symbol table.
@@ -38,7 +39,7 @@ public class HashSC<Key ,Value> {
 	// rehashing all of the keys
 	private void resize() 
 	{
-		m*=2;
+		m *=2;
 		while(!esPrimo(m))
 		{
 			m++;

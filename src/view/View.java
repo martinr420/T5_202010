@@ -23,8 +23,8 @@ public class View
         System.out.println(" ||      ==== MENU ====      ||");
 
         System.out.println( " ||" +  " 0. Cargar datos   "  + "       ||");
-        System.out.println("|| 1. Mostrar los comparendos mas al norte con tipo de vehiculo (MaxColaCP) ");
-        System.out.println("|| 2. Mostrar comparendos mas al norte con tipo de vehiculo (MaxHeapCP) ");
+        System.out.println("|| 1. Buscar tiempos de viaje por fecha, clase de vehículo e infracción (Linear Probing  ");
+        System.out.println("|| 2. Buscar tiempos de viaje por fecha, clase de vehículo e infracción (Separate Chaining) ");
         System.out.println( " **==========================**\n");
 
         // display hint

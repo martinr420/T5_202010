@@ -132,10 +132,10 @@ public class Multa implements Comparable<Multa>
 		
 		int num = 0 ;
 		
-		if(this.geo.darCoordenadas()[0] > pMulta.getGeo().darCoordenadas()[0])
+		if(this.getId() > pMulta.getId())
 		{
 			num = 1;		}
-		else if(this.geo.darCoordenadas()[0] < pMulta.geo.darCoordenadas()[0])
+		else if(this.getId() < pMulta.getId())
 		{
 			num = -1;
 		}

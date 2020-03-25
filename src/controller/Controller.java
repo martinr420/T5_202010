@@ -59,30 +59,33 @@ public class Controller {
 				switch (option) {
 
 				case 0:
-					System.out.println("digite el tamano");
-					int tamanoMuestra = reader.nextInt();
-					view.displayOp0Menu(modelo.retornarreq1(tamanoMuestra));
+					
+					view.displayOp0Menu(modelo.reque1());
 					break;
 
 				case 1:
 					// Display option 1
-					view.displayOp2Menu();
-					int n = reader.nextInt();
-					view.displayOp18Menu();
-					String vehiculo = reader.next();
-					modelo.comparendosMasAlNorteCola(n, vehiculo);
-					
-					
-					
+					reader.nextLine();
+					System.out.println("Ingrese una fecha");
+				    String fecha = reader.nextLine();
+				    System.out.println("Ingrese una clase de vehiculo");
+				    String clasVeh = reader.nextLine();
+				    System.out.println("Ingrese una infraccion");
+				    String infraccion = reader.nextLine();
+				    modelo.BuscarComparendosLP(fecha, clasVeh, infraccion);
 					break;
 
 				case 2:
 					
-					view.displayOp2Menu();
-					int n2 = reader.nextInt();
-					view.displayOp18Menu();
-					String vehiculo2 = reader.next();
-					modelo.comparendosMasAlNorteHeap(n2, vehiculo2);
+					reader.nextLine();
+					System.out.println("Ingrese una fecha");
+				    String fecha2 = reader.nextLine();
+				    System.out.println("Ingrese una clase de vehiculo");
+				    String clasVeh2 = reader.nextLine();
+				    System.out.println("Ingrese una infraccion");
+				    String infraccion2 = reader.nextLine();
+				    modelo.BuscarComparendosSC(fecha2, clasVeh2, infraccion2);
+				
 				
 					break;
 			
